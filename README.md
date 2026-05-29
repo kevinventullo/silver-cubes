@@ -1,6 +1,6 @@
 # silver-cubes
 
-N.b. Everything in this repo was written by Claude Code, with the exception of "kv_cube_test.py", some minor style edits to findings.md, and this disclaimer. 
+N.b. Everything in this repo was written by Claude Code, with the exception of "kv_cube_test.py", some minor style edits and corrections to findings.md, and this disclaimer. 
 
 Computational investigation of silver (n, 3)-cubes — specifically, finding a
 silver (11, 3)-cube (which was open in the literature) and exploring whether
