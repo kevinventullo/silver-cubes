@@ -1,5 +1,7 @@
 # silver-cubes
 
+N.b. Approximately 99% of this repo was written by Claude Code, with direction and a few minor edits by me. 
+
 Computational investigation of silver (n, 3)-cubes — specifically, finding a
 silver (11, 3)-cube (which was open in the literature) and exploring whether
 the same approach extends to n = 13.
