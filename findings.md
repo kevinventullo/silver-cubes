@@ -29,13 +29,13 @@ open prime in 2008 was **n = 11**, with n ∈ {13, 17, 19, …} also open.
 |---|---|---|
 | 2,3,5 | known (Ghebleh et al. 2008) | confirmed by SAT |
 | 7 | known (Ventullo-Khodkar 2009) | re-verified via SAT in 18 sec |
-| **11** | **open** | **silver cube found, verified** |
-| **13** | **open** | **silver cube found, verified** (translation-equivariant construction) |
+| **11** | **open** | **silver cube found, verified (2026-05-27)** |
+| **13** | **open** | **silver cube found, verified (2026-06-12)** (translation-equivariant construction) |
 
 The silver (11, 3)-cube file is at
 `silver_z2_n11_h16x6_cadical.txt`; the silver (13, 3)-cube file is at
 `silver_z13_n13_h13x11_cpsat.txt`. Both are verified by the script
-`verify_cube.py`.
+`verify_cube.py`. (KV note: I also verified these through a script I wrote by hand (!)). 
 
 ## Methodology
 
