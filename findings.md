@@ -30,11 +30,12 @@ open prime in 2008 was **n = 11**, with n ∈ {13, 17, 19, …} also open.
 | 2,3,5 | known (Ghebleh et al. 2008) | confirmed by SAT |
 | 7 | known (Ventullo-Khodkar 2009) | re-verified via SAT in 18 sec |
 | **11** | **open** | **silver cube found, verified** |
-| 13 | open | **still open** (~80 CPU-hours invested without result) |
+| **13** | **open** | **silver cube found, verified** (translation-equivariant construction) |
 
 The silver (11, 3)-cube file is at
-`silver_z2_n11_h16x6_cadical.txt`; verified by the
-script `verify_cube.py`.
+`silver_z2_n11_h16x6_cadical.txt`; the silver (13, 3)-cube file is at
+`silver_z13_n13_h13x11_cpsat.txt`. Both are verified by the script
+`verify_cube.py`.
 
 ## Methodology
 
@@ -84,6 +85,66 @@ For each candidate (h_p, m, m_f), one needs:
 This was tried at n = 13 with 5 distinct candidate distributions × 2 SAT
 solvers (cadical + kissat); none succeeded in ~10 hours wall × ~6 hours
 effective CPU each.
+
+### 5. Order-n translation equivariance (key for n = 13)
+
+The Z/2 approach treats the diagonal multiplicity distribution as a free
+parameter to be guessed and swept. A stronger ansatz removes that freedom
+entirely by demanding equivariance under a **cyclic group of order n** of
+diagonal-preserving translations, generated (for n = 13) by
+
+```
+tau : (x, y, z) -> (x + 1, y + 1, z - 2).
+```
+
+A coloring is `H`-equivariant if `c(tau·v) = rho(c(v))` for a fixed color
+permutation `rho`. Counting forces `rho` completely: it must be **two
+n-cycles plus (n - 2) fixed colors**. The fixed colors then each own a
+full `H`-orbit of the diagonal (n collinear points), and the cycled
+colors each own a single diagonal point. For n = 13 this gives the
+distribution `(13 × 11) + (1 × 26)` — *forced*, not guessed; it is exactly
+the "canonical, non-Z/2-compatible" distribution of Open Question 2 below
+that the earlier sweeps could not crack.
+
+Two facts make this work where direct/Z/2 search stalled:
+
+- **A clean reformulation.** Index the diagonal by `(x, y)`. Each
+  off-diagonal cell `w = (x, y, z)` with defect `s = x + y + z ≠ 0` is
+  adjacent to exactly the three diagonal cells
+  `{(x, y), (x - s, y), (x, y - s)}` — a "corner triple". A silver cube is
+  then equivalent to a proper `(3n - 2)`-coloring of the intersection
+  graph of these `n²(n - 1)` triples (two triples adjacent iff they share
+  a point); the diagonal color at each point is *forced* to be the unique
+  color missing from the 3n - 3 triples through it. Under `tau`, triples
+  carry tidy orbit coordinates that make the forced `rho` and the n ≡ 1
+  (mod 3) restriction provable rather than empirical.
+- **Symmetry breaking.** The equivariant model still admits ~10^10
+  trivial relabelings (permuting the n - 2 fixed colors, rotating each
+  n-cycle, translating the whole picture). Pinning these canonically — fix
+  the two cycle "holes" to specific diagonal cosets and assign the i-th
+  remaining coset to fixed color i — collapses that redundancy and is the
+  single decisive step. Without it the model ran 30+ CPU-hours with no
+  verdict; with it, OR-Tools **CP-SAT** returned `OPTIMAL` in ~6 hours.
+
+The resulting cube is in `silver_z13_n13_h13x11_cpsat.txt`. Its structure
+is the opposite of the n = 11 cube's: where n = 11 is "amorphous" with
+only a Z/2 mirror, n = 13 is **n-fold periodic by construction** — color
+classes are unions of `tau`-orbits, with diagonal spectrum 11 × 13 + 26 × 1.
+
+This route is intrinsic to **primes p ≡ 1 (mod 3)** (which includes 7 and
+13): the forced color spectrum exists only then. For p ≡ 2 (mod 3), e.g.
+n = 11, the order-p translation ansatz is provably infeasible (the
+encoding returns UNSAT), which is exactly why n = 11 required the Z/2 +
+guessed-distribution route instead. The two primes sit on opposite sides
+of a genuine mod-3 dichotomy rather than reflecting a difference in search
+luck.
+
+A further refinement: demanding the order-n translation **and** the Z/2
+negation simultaneously (dihedral group of order 2n) is also satisfiable
+at n = 13, giving a cube directly comparable to the n = 11 mirror
+structure. Here the single σ-fixed color is one of the heavy
+(full-coset, multiplicity 13) colors, versus the light (multiplicity 1)
+σ-fixed color at n = 11.
 
 ## Structural Analysis
 
@@ -143,21 +204,28 @@ arguments do not work easily.
 
 ## Open Questions
 
-1. **Does a silver (13, 3)-cube exist?** We invested ~80 CPU-hours across
-   10 SAT runs spanning 5 distributions × 2 solvers, with no result. The
-   outcome could be: (a) UNSAT for every Z/2-compatible distribution
-   tested; or (b) SAT but a specific search is needed that we haven't
-   found. We cannot distinguish.
+1. **Does a silver (13, 3)-cube exist?** *Resolved: yes.* The earlier
+   ~80 CPU-hours of Z/2 + distribution-sweep search failed not because
+   the object is absent but because that approach left both a large
+   distribution space and ~10^10-fold color-relabeling symmetry; the
+   order-13 translation ansatz with symmetry breaking (Method 5) found
+   one in ~6 CPU-hours. File: `silver_z13_n13_h13x11_cpsat.txt`.
 
 2. **Is there a non-Z/2 distribution at n = 13 that admits a silver cube?**
-   For n = 13, the "canonical" distribution (m = n, k_h = n - 2) =
-   (13 × 11 + 1 × 26) satisfies Prop 2.1 but is not Z/2-compatible
-   (k_h = 11 is odd). A 4.5-hour plain-cadical run found nothing; whether
-   this is UNSAT or hard-SAT is unknown.
+   *Resolved: yes — it is the winning one.* The "canonical" distribution
+   (m = n, k_h = n - 2) = (13 × 11 + 1 × 26), Z/2-incompatible because
+   k_h = 11 is odd, is exactly the distribution *forced* by order-13
+   translation equivariance. It is not merely admissible; under that
+   symmetry it is the only possibility.
 
-3. **General theorem**: the Ghebleh et al. conjecture (silver cubes exist for
-   all n ≥ 2) remains open for primes n ≥ 13. The probabilistic and algebraic
-   tools we tried do not seem to close it.
+3. **General theorem**: the Ghebleh et al. conjecture (silver cubes exist
+   for all n ≥ 2) remains open for primes n ≥ 17. The translation-
+   equivariant construction now gives 7 and 13 (both ≡ 1 mod 3) by the
+   same mechanism, suggesting a possible uniform construction for all
+   primes p ≡ 1 (mod 3) — the natural next target is n = 19. Primes
+   p ≡ 2 (mod 3), starting at n = 11, provably fall outside this
+   mechanism and appear to need a genuinely different (non-equivariant
+   or larger-group) idea.
 
 ## Practical Pipeline (what worked)
 
@@ -177,7 +245,9 @@ For a silver (n, 3)-cube at prime n with n² ≡ 1 mod 3 (which includes 11, 13,
 5. Run in parallel across distributions and solvers; first to finish wins.
 
 For n ≤ 11 this pipeline finishes in under 90 CPU-minutes per successful
-case. For n = 13 it has not yet succeeded in 80 CPU-hours.
+case. It did **not** succeed for n = 13 (~80 CPU-hours); n = 13 was
+instead solved by the order-n translation-equivariant route (Method 5),
+which is the recommended approach for primes p ≡ 1 (mod 3).
 
 ## Files of Note
 
@@ -186,6 +256,8 @@ case. For n = 13 it has not yet succeeded in 80 CPU-hours.
 - `silver_z2.py` — Z/2-equivariant encoder, σ-fixed mult = 1.
 - `silver_z2_v2.py` — Z/2-equivariant encoder, σ-fixed mult > 1 supported.
 - `silver_z2_n11_h16x6_cadical.txt` — the n = 11 silver cube file.
+- `silver_z13_n13_h13x11_cpsat.txt` — the n = 13 silver cube file
+  (order-13 translation-equivariant; found via CP-SAT, Method 5).
 - `silver_biased_n7_h7x5_cadical.txt` — the n = 7 silver cube file
   (matches the structure of the 2009 Ventullo-Khodkar cube).
 - `solutions_n7_diagonal.json` — 50 distinct diagonal patterns for n = 7
